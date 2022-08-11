@@ -1,9 +1,12 @@
+#'
+#'
 #' Semi-variogram modeling function
 #'
-#' Based on the \code{geoR} functions \code{variog} and \code{variofit}, the function fits one
-#' or multiple exponential empirical semi-variograms based on provided maximal distances and number of bins.
-#' All estimated parameter values are saved in a single table.
-#' Graphics of all models can be observed in a shiny application output (default)
+#' The function allows for user friendly exponential semi-variogram model fitting to data.
+#' Based on the \code{gstat} function \code{variogram}, \code{vgm} and \code{fit.variogram}, the function fits one
+#' or multiple exponential semi-variogram models given one or multiple maximal distances and number of bins.
+#' All estimated model parameters are summarized in an information table.
+#' Graphics of all models can be observed in a shiny application output
 #' or in several plot windows, one for each empirical semi-variogram.
 #' Additionally, a pdf file including all the figures can be
 #' saved in a specified working directory.
@@ -12,13 +15,13 @@
 #' @param data A data frame or matrix containing the x-coordinates  in the first column,
 #'        the y-coordinates  in the second column (by default in meters)
 #'        and the data values in the third column.
-#'        The data set may contain more attributes in further columns. In this case, a warning is provided.
+#'        The dataset may contain more attributes in further columns. In this case, a warning is provided.
 #'        All columns beyond the third one are ignored.
-#' @param max.dist An optional numeric argument; the default is the following maximal distance vector \code{c(2000,1500,1000,750,500,250)}.
+#' @param max.dist An optional numeric argument; the default is the vector \code{c(2000,1500,1000,750,500,250)}.
 #'        Either a scalar or vector containing the maximal distances can be inserted. If a vector is
 #'        provided, the \code{ nbins} argument must be either a scalar or a vector of the same length.
 #' @param nbins  An optional argument; the default is 13 bins for all empirical semi-variograms to be estimated.
-#'        Either a scalar or vector containing the number of bins considered. If a vector is
+#'        Either a scalar or vector containing the number of bins can be inserted. If a vector is
 #'        provided, the \code{max.dist} argument must be either a scalar or a vector of the same length.
 #' @param shinyresults A logical argument; by default TRUE. If \code{shinyresults = T},
 #'        the information table and graphics of
@@ -50,8 +53,10 @@
 #'       specifications for the pdf-output, \code{$pdf}, \code{$pdf.directory} and \code{$pdf.name}.}
 #' \item{call}{Contains the call of the function.}
 #'
-#' The models are visualized in an automatically opened shiny application if \code{shinyresults = T}. It is to be noticed,
-#' that in this case, the output of the \code{vario.mod} function is not saved in the environment, even with a variable name assigned.
+#' The models are visualized in an automatically opened shiny application if \code{shinyresults = T}. Beware
+#' that in this case the output of the \code{vario.mod} function is not saved in the environment, even with a variable name assigned.
+#' In order to save the output, set \code{shinyresults = F}.
+#'
 #' If the argument \code{windowplots = T}, one or multiple graphics of the estimated
 #' empirical semi-variograms and semi-variogram models are plotted in the R environment.
 #' If the argument \code{pdf = T}, a pdf file containing the same figures is saved in the manually
@@ -64,7 +69,7 @@
 #'          estimation. Data pairs that are separated by a higher distance are excluded.
 #'
 #'          \code{nbins}: the interval (0, \code{max.dist}] is separated into \code{nbins} equidistant
-#'          lag bins or intervals, respectively. Each pairwise distance can then be assigned to one of the
+#'          lag bins or intervals, respectively. Each pairwise distance is then assigned to one of the
 #'          bins. The point pair subsets \eqn{N(h_k) := \{(\mathbf{s_i}, \mathbf{s_j}) \in D |\;\; ||\mathbf{s_i}-\mathbf{s_j}|| \in Bin_k\}}
 #'          are defined
 #'          and a point estimate of the semi-variogram is estimated for each \eqn{Bin_k} for \eqn{k =1,...}\code{nbins}.
@@ -72,7 +77,7 @@
 #'
 #'          \strong{Empirical semi-variogram estimator:}
 #'
-#'          Using the \code{geoR} functions \code{variog} an empirical semi-variogram according to
+#'          Using the \code{gstat} function \code{variogram} an empirical semi-variogram according to
 #'          Matheron's semi-variogram estimator \insertCite{matheron1962traite}{EgoCor}
 #'          \deqn{\hat{\gamma}(h) = \frac{1}{2\cdot|N(h)|} \sum_{(\mathbf{s_i},
 #'          \mathbf{s_j}) \in N(h)}\{Z(\mathbf{s_i})- Z(\mathbf{s_j})\}^2}
@@ -85,12 +90,16 @@
 #'          \insertCite{Cressie.1993}{EgoCor}
 #'          \deqn{\gamma_{exp}(h) =  c_0 + \sigma_0^2 \Big\{1 - \exp\big(- \frac{h}{\phi}\big)\Big\}}
 #'          for \eqn{h > 0}
-#'          is fitted using the \code{variofit} function from package \code{geoR} via
-#'          weighted least squares estimation.
+#'          is fitted using the \code{vgm} and \code{fit.variogram} function from package \code{gstat} via
+#'          weighted least squares estimation. The weights have the form
+#'          \eqn{ w_k = \vert N(h_k) \vert / h_k^2} specified by the \code{fit.method = 7} argument
+#'          within the \code{fit.variogram} function.
+#'
 #'          For the numerical optimization, starting values for the model parameters have to be provided.
 #'          The initial value for the partial sill \eqn{\sigma_0^2} equals the empirical variance of
 #'          the observations. The starting value for the nugget effect \eqn{c_0} is set to zero.
 #'          The initial value for the shape parameter \eqn{\phi} is set as \code{max.dist} divided by 3.
+#'
 #'
 #'
 #'          \strong{Result statistics:}
@@ -152,11 +161,11 @@
 #'}
 #'
 #'
-#' @seealso \code{variog} in the \code{geoR} package for further information on the arguments \code{max.dist} and \code{nbins} as well as on
-#'          the estimation of the empirical semi-variogram itself;
+#' @seealso \code{variogram} in the \code{gstat} package for further information on
+#'          the estimation of the empirical semi-variogram;
 #'
-#'          \code{variofit} in the \code{geoR} package for further information on the default settings
-#'          when estimating the exponential semi-variogram model.
+#'          \code{fit.variogram} and \code{vgm} in the \code{gstat} package for further information on the default settings
+#'          when fitting an exponential semi-variogram model to an empirical semi-variogram.
 #'
 #'
 #'
@@ -169,11 +178,13 @@
 #' @export
 
 
+
 vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
                      shinyresults = TRUE, windowplots = FALSE,
                      pdf = FALSE, pdf.directory = getwd(), pdf.name = "Semivariograms"){
   #### necessary packages
-  #geoR
+  #gstat
+  #sp
   #SpatialTools
   #stats
   #graphics
@@ -193,16 +204,24 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
   #### data input: formatting
   if(ncol(data)>3){warning('Data matrix contains more than 3 columns. Are the columns in correct order?\n')}
   message(paste('Message:',
-            'Input data interpretation:',
-            '    column 1: Cartesian x-coordinates in meters',
-            '    column 2: Cartesian y-coordinates in meters',
-            '    column 3: outcome variable \n \n',sep="\n"))
+                'Input data interpretation:',
+                '    column 1: Cartesian x-coordinates in meters',
+                '    column 2: Cartesian y-coordinates in meters',
+                '    column 3: outcome variable \n \n',sep="\n"))
 
-  data <- cbind(data[,1], data[,2], data[,3])
-  data <- as.data.frame(data.frame(geoR::jitterDupCoords(data[,1:2],max=0.01),data[,3]))
-  data.ge <- geoR::as.geodata(data, coords.col = 1:2, data.col = 3, na.action = "ifany")
-  #-> list containing [[1]]coordinates, [[2]]variable
-  sample.var = stats::var(data.ge[[2]])
+  colnames(data)[1:2] = c("x", "y")
+  if(sum(is.na(data[,1:3])) > 0){
+    miss.x = which(is.na(data[,1]))
+    miss.y = which(is.na(data[,2]))
+    miss.z = which(is.na(data[,3]))
+    incompl.rows = unique(c(miss.x, miss.y, miss.z))
+    nr.incompl.rows = length(incompl.rows)
+    warning(paste("Data contains", nr.incompl.rows, "rows with NAs. Rows with NAs are omitted."))}
+  data.ge = data[,1:3]
+
+  data.ge = stats::na.omit(data.ge)
+  sp::coordinates(data.ge) = ~x+y
+  sample.var = stats::var(data.ge[[1]])
 
   #### estimate variogram
   variog.dist.bin.dep = function(max.dist.nbins.cbinded){
@@ -210,8 +229,7 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
     # purpose: make variog function usable in lapply()
     max.dist = max.dist.nbins.cbinded[1]
     nbins = max.dist.nbins.cbinded[2]
-    est.variog = geoR::variog(data.ge,estimator.type="classical",
-                              max.dist = max.dist, uvec = nbins, messages = F)
+    est.variog = gstat::variogram(object = data.ge[[1]] ~ 1, data = data.ge, cutoff = max.dist, width = max.dist / nbins)
     return(est.variog)}
 
   if(is.atomic(max.dist) && length(max.dist) == 1 && is.atomic(nbins) && length(nbins) == 1){# max.dist and nbins both scalar
@@ -235,31 +253,42 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
   }
   else{stop("Input parameters max.dist and nbins have to be either \n     both a scalar, \n     max.dist a scalar and nbins a vector, \n     max.dist a vector and nbins a scalar, \n     both vectors of the same length.")}
 
-  max.dist.nbins.matrix = cbind(max.dist.vect,nbins.vect)
+  max.dist.nbins.matrix = cbind(max.dist.vect, nbins.vect)
   variog.list = list()
   variog.list = apply(max.dist.nbins.matrix, 1, variog.dist.bin.dep)
 
-  nbins.used = sapply(variog.list, function(x) length(x$uvec))
+  nbins.used = sapply(variog.list, function(x) dim(x)[1])
 
   #### estimate exponential variogram model
   variofit.less.arg = function(vario){
     # variogram modelling function with parameter structure, st. lapply can be used
     ini.partial.sill <- sample.var # partial sill parameter of the exp. model (also called sigmasq)
-    ini.shape <- vario$max.dist/3 # oder /4; shape parameter of the exp. model (also called phi)
+    ini.shape <- max(vario$dist)/3 # oder /4; shape parameter of the exp. model (also called phi)
     ini.values <- c(ini.partial.sill, ini.shape)
-    exp.variogram.mod <- geoR::variofit(vario, ini.cov.pars = ini.values, cov.model = "exponential", messages = F)
+    v = gstat::vgm(psill = ini.partial.sill, model = "Exp", range = ini.shape, nugget = 0)
+    exp.variogram.mod <- gstat::fit.variogram(vario, model = v,  # fitting the model with starting model
+                                       fit.sills = TRUE,
+                                       fit.ranges = TRUE,
+                                       debug.level = 1, warn.if.neg = FALSE, fit.kappa = FALSE)
   }
+
 
   vmod.list = lapply(variog.list, variofit.less.arg)
 
   par.extraction = function(vmod){
-    est.pars = summary(vmod)$estimated.pars
+    est.pars = c(vmod$psill[1], vmod$psill[2], vmod$range[2])
     #loss.fct.value = summary(vmod)$sum.of.squares
     return(est.pars)
   }
+
+  prac.range.calc = function(vmod){
+    prac.range = -log(0.05*(1+(vmod$psill[1]/(vmod$psill[2]))))*vmod$range[2]
+    return(prac.range)
+  }
+
   estimated.pars = t(sapply(vmod.list, par.extraction))
   colnames(estimated.pars) = c("nugget","partial.sill","shape")
-  prac.range = sapply(estimated.pars[,3], geoR::practicalRange, cov.model="exp")
+  prac.range = sapply(vmod.list, prac.range.calc)
   est.total.var = estimated.pars[,1] + estimated.pars[,2]
   RSV = estimated.pars[,2]/est.total.var # relative structured variability
   rel.bias = est.total.var/sample.var # relative bias
@@ -281,7 +310,8 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
     graphics::par(mgp = c(1.5, 0.5, 0.0))
     graphics::par(omi = c(1.0, 1, 1.5, 1.0))
     for (d in 1:length(max.dist.vect)){
-      plt = plot(variog.list[[d]], xaxt = "n", yaxt = "n")
+      plt = plot(variog.list[[d]]$dist, variog.list[[d]]$gamma, pch = 16, xaxt = "n", yaxt = "n",
+                 xlab = "Distance", ylab = "Semivariance", ylim = c(0, max(variog.list[[d]]$gamma)))
       plt
       graphics::axis(1, cex.axis = 0.8)
       graphics::axis(2, cex.axis = 0.8)
@@ -291,7 +321,8 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
                       adj = 0,
                       cex.main = 1,
                       font = 1)
-      graphics::lines(vmod.list[[d]])
+      x = NULL
+      graphics::curve(vmod.list[[d]]$psill[1] + vmod.list[[d]]$psill[2]*(1 - exp(-x/vmod.list[[d]]$range[2])), add = TRUE)
       pars = round(infotable[d,c(4,5,7,8,9)], digits = 2)
 
       if(pars[3] > (10*max.dist.vect[[d]]) | pars[3] < 0){
@@ -318,9 +349,10 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
   #### Visualization in RWindow
   if(windowplots == T){
     for (d in 1:length(max.dist.vect)){
-      grDevices::x11() # open a new window for each plot
+      # grDevices::x11() # open a new window for each plot
       # esp. to prevent overwriting plots in basic R GUI
-      plt = plot(variog.list[[d]], xaxt = "n", yaxt = "n")
+      plt = plot(variog.list[[d]]$dist, variog.list[[d]]$gamma, pch = 16, xaxt = "n", yaxt = "n",
+                 xlab = "Distance", ylab = "Semivariance", ylim = c(0, max(variog.list[[d]]$gamma)))
       graphics::title(paste("Maximal distance:",max.dist.vect[d],
                             "\nNumber of bins:",nbins.used[d] , sep=" "),
                       adj = 0,
@@ -328,7 +360,8 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
       plt
       graphics::axis(1, cex.axis = 0.8)
       graphics::axis(2, cex.axis = 0.8)
-      graphics::lines(vmod.list[[d]])
+      x = NULL
+      graphics::curve(vmod.list[[d]]$psill[1] + vmod.list[[d]]$psill[2]*(1 - exp(-x/vmod.list[[d]]$range[2])), add = TRUE)
       pars = round(infotable[d,c(4,5,7,8,9)], digits = 2)
 
       if(pars[3] > (10*max.dist.vect[[d]]) | pars[3] < 0 ){
@@ -376,13 +409,13 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
     uiv = shiny::fluidPage(shiny::tags$h1("Semi-variogram models"),
                            shiny::fluidRow(
                              shiny::column(width = 5,
-                                    shiny::radioButtons(inputId = "modID",
-                                                        label = "Choose a maximal distance and nbins combination.",
-                                                        choices = paste0("Model ", as.numeric(rownames(infotable))," with ",
-                                                                         "max. distance of ", max.dist.vect, " and ",
-                                                                         nbins.used, " bins"))),
+                                           shiny::radioButtons(inputId = "modID",
+                                                               label = "Please choose a model:",
+                                                               choices = paste0("Model ", as.numeric(rownames(infotable))," with ",
+                                                                                "max. distance of ", max.dist.vect, " and ",
+                                                                                nbins.used, " bins"))),
                              shiny::column(width = 7, offset = 0,
-                                    shiny::plotOutput(outputId = "pl"))
+                                           shiny::plotOutput(outputId = "pl"))
                            ),
 
                            shiny::tags$h4("Info table"),
@@ -419,7 +452,8 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
                       "max. distance of ", max.dist.vect, " and ",
                       nbins.used, " bins")
         d = as.numeric(which(expr == input$modID))
-        plt = plot(variog.list[[d]], xaxt = "n", yaxt = "n")
+        plt = plot(variog.list[[d]]$dist, variog.list[[d]]$gamma, pch = 16, xaxt = "n", yaxt = "n",
+                   xlab = "Distance", ylab = "Semivariance", ylim = c(0, max(variog.list[[d]]$gamma)))
         graphics::title(paste("Maximal distance:",max.dist.vect[d],
                               "\nNumber of bins:",nbins.used[d] , sep=" "),
                         adj = 0,
@@ -427,7 +461,8 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
         plt
         graphics::axis(1, cex.axis = 0.8)
         graphics::axis(2, cex.axis = 0.8)
-        graphics::lines(vmod.list[[d]])
+        x = NULL
+        graphics::curve(vmod.list[[d]]$psill[1] + vmod.list[[d]]$psill[2]*(1 - exp(-x/vmod.list[[d]]$range[2])), add = TRUE)
         pars = round(infotable[d,c(3,4,6,7,8)], digits = 2)
       })
 
