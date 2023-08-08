@@ -32,7 +32,7 @@ mod_2 = vario.mod(birth, max.dist = 800, nbins = c(11,12,13),
 ## ----fig5, fig.height = 4.5, fig.width = 6, fig.align = "center"--------------
 res <- lm(formula = birthweight ~ datediff + primiparous + bmi, data = birth)
 v.prep = vario.reg.prep(res, data = birth)
-models<-vario.mod(v.prep, max.dist = c(800,600), shinyresults = FALSE, windowplots = TRUE)
+models = vario.mod(v.prep, max.dist = c(800,600), shinyresults = FALSE, windowplots = TRUE)
 
 ## ---- warning = FALSE---------------------------------------------------------
 unc = par.uncertainty(mod_2, mod.nr = 2, B = 100)

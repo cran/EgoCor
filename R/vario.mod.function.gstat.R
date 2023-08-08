@@ -20,9 +20,11 @@
 #' @param max.dist An optional numeric argument; the default is the vector \code{c(2000,1500,1000,750,500,250)}.
 #'        Either a scalar or vector containing the maximal distances can be inserted. If a vector is
 #'        provided, the \code{ nbins} argument must be either a scalar or a vector of the same length.
-#' @param nbins  An optional argument; the default is 13 bins for all empirical semi-variograms to be estimated.
+#' @param nbins An optional argument; the default is 13 bins for all empirical semi-variograms to be estimated.
 #'        Either a scalar or vector containing the number of bins can be inserted. If a vector is
 #'        provided, the \code{max.dist} argument must be either a scalar or a vector of the same length.
+#' @param fit.method An optional argument that specifies the fit method used by the gstat function fit.variogram to fit the semivariogram.
+#'        The default value ist 7. Only values 1,2,6,7 are possible. Please see the package description of gstat for more information.
 #' @param shinyresults A logical argument; by default TRUE. If \code{shinyresults = T},
 #'        the information table and graphics of
 #'        all estimated semi-variogram models can be observed in an automatically generated
@@ -114,7 +116,7 @@
 #'          at which \eqn{\gamma(h^* = 0.95 \cdot \sigma^2)} is called the practical range.
 #'          Formally, the practical range is
 #'          defined as
-#'          \deqn{prac.range = \frac{1}{\phi} log\Big( \frac{\sigma_0^2}{0.05(c_0 + \sigma_0^2)} \Big).}
+#'          \deqn{prac.range = \phi ln\Big( \frac{\sigma_0^2}{0.05(c_0 + \sigma_0^2)} \Big).}
 #'
 #'          Relative Structural Variability (RSV): The relative structural variability is a measure of
 #'          the proportion of the total variance with a spatial structure and
@@ -179,7 +181,7 @@
 
 
 
-vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
+vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13, fit.method = 7,
                      shinyresults = TRUE, windowplots = FALSE,
                      pdf = FALSE, pdf.directory = getwd(), pdf.name = "Semivariograms"){
   #### necessary packages
@@ -229,7 +231,9 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
     # purpose: make variog function usable in lapply()
     max.dist = max.dist.nbins.cbinded[1]
     nbins = max.dist.nbins.cbinded[2]
-    est.variog = gstat::variogram(object = data.ge[[1]] ~ 1, data = data.ge, cutoff = max.dist, width = max.dist / nbins)
+    est.variog = list()
+    est.variog$empsv = gstat::variogram(object = data.ge[[1]] ~ 1, data = data.ge, cutoff = max.dist, width = max.dist / nbins)
+    est.variog$max.dist = max.dist
     return(est.variog)}
 
   if(is.atomic(max.dist) && length(max.dist) == 1 && is.atomic(nbins) && length(nbins) == 1){# max.dist and nbins both scalar
@@ -257,21 +261,20 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
   variog.list = list()
   variog.list = apply(max.dist.nbins.matrix, 1, variog.dist.bin.dep)
 
-  nbins.used = sapply(variog.list, function(x) dim(x)[1])
+  nbins.used = sapply(variog.list, function(x) dim(x$empsv)[1])
 
   #### estimate exponential variogram model
   variofit.less.arg = function(vario){
     # variogram modelling function with parameter structure, st. lapply can be used
     ini.partial.sill <- sample.var # partial sill parameter of the exp. model (also called sigmasq)
-    ini.shape <- max(vario$dist)/3 # oder /4; shape parameter of the exp. model (also called phi)
-    ini.values <- c(ini.partial.sill, ini.shape)
+    ini.shape <- vario$max.dist/3 # oder /4; shape parameter of the exp. model (also called phi)
     v = gstat::vgm(psill = ini.partial.sill, model = "Exp", range = ini.shape, nugget = 0)
-    exp.variogram.mod <- gstat::fit.variogram(vario, model = v,  # fitting the model with starting model
+    exp.variogram.mod <- gstat::fit.variogram(vario$empsv, model = v,  # fitting the model with starting model
                                        fit.sills = TRUE,
                                        fit.ranges = TRUE,
+                                       fit.method = fit.method,
                                        debug.level = 1, warn.if.neg = FALSE, fit.kappa = FALSE)
   }
-
 
   vmod.list = lapply(variog.list, variofit.less.arg)
 
@@ -296,6 +299,7 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
   infotable = data.frame(max.dist = max.dist.vect, nbins = as.integer(nbins.vect),
                          nbins.used = nbins.used,
                          estimated.pars, prac.range, RSV, rel.bias)
+  rownames(infotable) = 1:(dim(infotable)[1])
 
   #### Save and restore graphical parameter settings ###
   originalpar = graphics::par(no.readonly = TRUE) # save par settings before adjusting here for graphical output
@@ -310,8 +314,8 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
     graphics::par(mgp = c(1.5, 0.5, 0.0))
     graphics::par(omi = c(1.0, 1, 1.5, 1.0))
     for (d in 1:length(max.dist.vect)){
-      plt = plot(variog.list[[d]]$dist, variog.list[[d]]$gamma, pch = 16, xaxt = "n", yaxt = "n",
-                 xlab = "Distance", ylab = "Semivariance", ylim = c(0, max(variog.list[[d]]$gamma)))
+      plt = plot(variog.list[[d]]$empsv$dist, variog.list[[d]]$empsv$gamma, pch = 16, xaxt = "n", yaxt = "n",
+                 xlab = "Distance", ylab = "Semivariance", ylim = c(0, max(variog.list[[d]]$empsv$gamma)), xlim = c(0,variog.list[[d]]$max.dist))
       plt
       graphics::axis(1, cex.axis = 0.8)
       graphics::axis(2, cex.axis = 0.8)
@@ -351,8 +355,8 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
     for (d in 1:length(max.dist.vect)){
       # grDevices::x11() # open a new window for each plot
       # esp. to prevent overwriting plots in basic R GUI
-      plt = plot(variog.list[[d]]$dist, variog.list[[d]]$gamma, pch = 16, xaxt = "n", yaxt = "n",
-                 xlab = "Distance", ylab = "Semivariance", ylim = c(0, max(variog.list[[d]]$gamma)))
+      plt = plot(variog.list[[d]]$empsv$dist, variog.list[[d]]$empsv$gamma, pch = 16, xaxt = "n", yaxt = "n",
+                 xlab = "Distance", ylab = "Semivariance", ylim = c(0, max(variog.list[[d]]$empsv$gamma)), xlim = c(0,variog.list[[d]]$max.dist))
       graphics::title(paste("Maximal distance:",max.dist.vect[d],
                             "\nNumber of bins:",nbins.used[d] , sep=" "),
                       adj = 0,
@@ -400,7 +404,7 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
   # specified arguments in the input:
   # for information purposes and for the parameter uncertainty estimation
   input.arguments = list(data = data, max.dist = max.dist,
-                         nbins = nbins,
+                         nbins = nbins, fit.method = fit.method,
                          pdf = pdf, pdf.directory = pdf.directory,
                          pdf.name = pdf.name)
 
@@ -452,8 +456,8 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
                       "max. distance of ", max.dist.vect, " and ",
                       nbins.used, " bins")
         d = as.numeric(which(expr == input$modID))
-        plt = plot(variog.list[[d]]$dist, variog.list[[d]]$gamma, pch = 16, xaxt = "n", yaxt = "n",
-                   xlab = "Distance", ylab = "Semivariance", ylim = c(0, max(variog.list[[d]]$gamma)))
+        plt = plot(variog.list[[d]]$empsv$dist, variog.list[[d]]$empsv$gamma, pch = 16, xaxt = "n", yaxt = "n",
+                   xlab = "Distance", ylab = "Semivariance", ylim = c(0, max(variog.list[[d]]$empsv$gamma)), xlim = c(0,variog.list[[d]]$max.dist))
         graphics::title(paste("Maximal distance:",max.dist.vect[d],
                               "\nNumber of bins:",nbins.used[d] , sep=" "),
                         adj = 0,
