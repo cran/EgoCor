@@ -2,7 +2,7 @@
 % Please edit documentation in R/vario.reg.prep.function.R
 \name{vario.reg.prep}
 \alias{vario.reg.prep}
-\title{Adjustment for covariates}
+\title{Adjustment for covariates before semi-variogram model fitting}
 \usage{
 vario.reg.prep(reg, data = NULL)
 }
@@ -25,6 +25,8 @@ A data frame with three columns:
 \item{adj}{Studentized residuals to be used as new variable adjusted for covariates.}
 }
 \description{
+Adjustment for covariates provides the option to eliminate non-spatial effects
+on the variable of interest.
 Given a linear regression output of class 'lm' or 'lmerMod'
 with the attribute of interest as dependent variable,
 the function provides a dataset containing the coordinates of the original observations
@@ -51,7 +53,7 @@ hist(birth$birthweight) # attribute of interest
 
 # Linear regression model
 mod1 = lm(birthweight ~ primiparous + datediff + bmi
-+ factor(inc), data = birth)
++ inc, data = birth)
 summary(mod1)
 data.adj1 = vario.reg.prep(mod1)
 
@@ -61,18 +63,18 @@ hist(data.adj1$adj) # adjusted attribute of interest
 
 
 ## Example 2
-# Data argument within lm not provided (not recommended, but possible):
+# No data argument provided within lm (not recommended, but possible):
 mod2 = lm(birth$birthweight ~ birth$primiparous + birth$datediff + birth$bmi
-+ factor(birth$inc))
++ birth$inc)
 summary(mod2)
 # In this case, make sure to provide the data argument here:
 data.adj2 = vario.reg.prep(reg = mod2, data = birth)
 
 
+if (requireNamespace("lme4", quietly = TRUE)) {
 ## Example 3
 # Linear mixed regression model
-library(lme4)
-mod3 = lmer(birthweight ~ primiparous + datediff
+mod3 = lme4::lmer(birthweight ~ primiparous + datediff
                 + bmi + (1|inc), data = birth)
 summary(mod3)
 data.adj3 = vario.reg.prep(mod3)
@@ -80,12 +82,12 @@ data.adj3 = vario.reg.prep(mod3)
 
 ## Example 4
 # Data argument within lmer not provided (not recommended, but possible):
-mod4 = lmer(birth$birthweight ~ birth$primiparous + birth$datediff
+mod4 = lme4::lmer(birth$birthweight ~ birth$primiparous + birth$datediff
             + birth$bmi + (1|birth$inc))
 summary(mod4)
 # In this case, make sure to provide the data argument here:
 data.adj4 = vario.reg.prep(reg = mod4, data = birth)
-
+}
 
 }
 \seealso{

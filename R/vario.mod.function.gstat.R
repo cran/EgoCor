@@ -1,6 +1,4 @@
-#'
-#'
-#' Semi-variogram modeling function
+#' Semi-variogram model fitting
 #'
 #' The function allows for user friendly exponential semi-variogram model fitting to data.
 #' Based on the \code{gstat} function \code{variogram}, \code{vgm} and \code{fit.variogram}, the function fits one
@@ -212,16 +210,16 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
                 '    column 3: outcome variable \n \n',sep="\n"))
 
   colnames(data)[1:2] = c("x", "y")
-  if(sum(is.na(data[,1:3])) > 0){
-    miss.x = which(is.na(data[,1]))
-    miss.y = which(is.na(data[,2]))
-    miss.z = which(is.na(data[,3]))
-    incompl.rows = unique(c(miss.x, miss.y, miss.z))
-    nr.incompl.rows = length(incompl.rows)
-    warning(paste("Data contains", nr.incompl.rows, "rows with NAs. Rows with NAs are omitted."))}
-  data.ge = data[,1:3]
 
-  data.ge = stats::na.omit(data.ge)
+  ### look for rows with missing values
+    comp.row = stats::complete.cases(data[,1:3])
+    if(sum(comp.row == F) > 0){warning(paste("Data contain",
+                                             sum(comp.row == F),
+                                             "rows with missing data. Missing data rows are ignored."))
+    }
+  data.ge = data[comp.row,1:3]
+
+  #data.ge = stats::na.omit(data.ge)
   sp::coordinates(data.ge) = ~x+y
   sample.var = stats::var(data.ge[[1]])
 
@@ -479,7 +477,7 @@ vario.mod = function(data, max.dist = c(2000,1500,1000,750,500,250), nbins = 13,
                 vmod.list = vmod.list,
                 input.arguments = input.arguments,
                 call = fct.call)
-  class(output) <- "vario.mod.output"
 
+  class(output) = "vario.mod.output"
   return(output)
 }
