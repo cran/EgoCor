@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE,
@@ -34,6 +34,6 @@ res <- lm(formula = birthweight ~ datediff + primiparous + bmi, data = birth)
 v.prep = vario.reg.prep(res, data = birth)
 models = vario.mod(v.prep, max.dist = c(800,600), shinyresults = FALSE, windowplots = TRUE)
 
-## ---- warning = FALSE---------------------------------------------------------
+## ----warning = FALSE----------------------------------------------------------
 unc = par.uncertainty(mod_2, mod.nr = 2, B = 100)
 

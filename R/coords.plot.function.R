@@ -9,6 +9,10 @@
 #'    and the values of the attribute of interest in the third column.
 #'    Additional columns are ignored.
 #'
+#' @param legend.pos position of the legend in the plot specified by a single keyword
+#' out of \code{"none", "bottomright", "bottom", "bottomleft", "left", "topleft", "top", "topright"}.
+#' Default is \code{"topright"}.
+#'
 #'
 #' @return
 #' The function returns a plot showing the points based on Cartesian coordinates. A black circle indicates that the
@@ -26,21 +30,24 @@
 #'
 #' ## Example 2
 #' coords.plot(birth)
+#' coords.plot(birth, legend.pos = "bottomright")
 #'
 #' @export
 
 
-coords.plot <- function(data){
+coords.plot <- function(data, legend.pos = "topright"){
   #### necessary packages
   # graphics
 
-  ### message about required data format
+  ### messages about required data format
+  if(!is.data.frame(data) & !is.matrix(data)){stop("Input data must be a data frame or matrix.\n")}
   if(ncol(data)>3){warning('Data matrix contains more than 3 columns. Are the columns in correct order?\n')}
   message(paste('Message:',
                 'Input data interpretation:',
                 '    column 1: Cartesian x-coordinates in meters',
                 '    column 2: Cartesian y-coordinates in meters',
                 '    column 3: outcome variable \n \n',sep="\n"))
+
 
   ### look for rows with missing values in coordinates
   comp.row = stats::complete.cases(data[,1:2])
@@ -69,7 +76,15 @@ coords.plot <- function(data){
        col = group.col, pch = group.pch,
        lwd = 2)
 
-  graphics::legend("topright",
+  if(!legend.pos %in% c("none", "bottomright", "bottom", "bottomleft", "left", "topleft", "top", "topright")){
+    stop("Invalid legend position: should be one of 'none', 'bottomright', 'bottom', 'bottomleft', 'left', 'topleft', 'top', 'topright'")
+  }
+
+  if(legend.pos == "none"){
+    return()
+  }
+
+  graphics::legend(legend.pos,
          title = "outcome observed?", legend = levels(group.f),
          col = c(1,2), pch = c(1,4), lty = c(NA, NA), ncol = 2,
          lwd = 2, cex = 0.8)

@@ -493,7 +493,7 @@ distances to locate where the range might be situated:</p>
 #&gt;    - Index = model number,
 #&gt;    - max.dist = maximal distance considered in the empirical semi-variogram estimation,
 #&gt;    - nbins = number of bins specified for the empirical semi-variogram estimation,
-#&gt;    - nbins.used = number of bins used for the empirical semi-variogram estimation (can differ from nbins in case of colocatted data points),
+#&gt;    - nbins.used = number of bins used for the empirical semi-variogram estimation (can differ from nbins in case of colocated data points),
 #&gt;    - nugget = the estimated nugget effect,
 #&gt;    - partial.sill = the estimated partial sill, 
 #&gt;    - shape = the estimated shape parameter,
@@ -537,7 +537,7 @@ does not detect a spatial correlation structure at all.</p>
 #&gt;    - Index = model number,
 #&gt;    - max.dist = maximal distance considered in the empirical semi-variogram estimation,
 #&gt;    - nbins = number of bins specified for the empirical semi-variogram estimation,
-#&gt;    - nbins.used = number of bins used for the empirical semi-variogram estimation (can differ from nbins in case of colocatted data points),
+#&gt;    - nbins.used = number of bins used for the empirical semi-variogram estimation (can differ from nbins in case of colocated data points),
 #&gt;    - nugget = the estimated nugget effect,
 #&gt;    - partial.sill = the estimated partial sill, 
 #&gt;    - shape = the estimated shape parameter,
@@ -575,7 +575,7 @@ structure seen:</p>
 #&gt;    - Index = model number,
 #&gt;    - max.dist = maximal distance considered in the empirical semi-variogram estimation,
 #&gt;    - nbins = number of bins specified for the empirical semi-variogram estimation,
-#&gt;    - nbins.used = number of bins used for the empirical semi-variogram estimation (can differ from nbins in case of colocatted data points),
+#&gt;    - nbins.used = number of bins used for the empirical semi-variogram estimation (can differ from nbins in case of colocated data points),
 #&gt;    - nugget = the estimated nugget effect,
 #&gt;    - partial.sill = the estimated partial sill, 
 #&gt;    - shape = the estimated shape parameter,
@@ -626,17 +626,15 @@ bootstrap samples than done here.</p>
 <span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt;  of bootstrap samples B to be generated.</span></span>
 <span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt; Initial estimation finished</span></span>
-<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt;  86 of 100 Models converged.</span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt;  81 of 100 Models converged.</span></span>
 <span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt; Reestimating:</span></span>
-<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a> <span class="dv">98</span> of <span class="dv">100</span> models converged.</span>
-<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a> <span class="dv">100</span> of <span class="dv">100</span> models converged.</span>
-<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a><span class="co">#&gt;  Call:  par.uncertainty(vario.mod.output = mod_2 , mod.nr = 2 , par.est = NULL , data= NULL , max.dist= NULL , nbins = NULL , B = 100 , threshold.factor = 3 ) </span></span>
-<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-26"><a href="#cb13-26" tabindex="-1"></a><span class="co">#&gt;                   Estimate Std. Error</span></span>
-<span id="cb13-27"><a href="#cb13-27" tabindex="-1"></a><span class="co">#&gt; nugget effect  74966.36163 156852.228</span></span>
-<span id="cb13-28"><a href="#cb13-28" tabindex="-1"></a><span class="co">#&gt; partial sill  159845.81359 469168.308</span></span>
-<span id="cb13-29"><a href="#cb13-29" tabindex="-1"></a><span class="co">#&gt; shape             64.32218    512.258</span></span></code></pre></div>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt;  99 of 100 models converged. 100 of 100 models converged.</span></span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="co">#&gt;  Call:  par.uncertainty(vario.mod.output = mod_2 , mod.nr = 2 , par.est = NULL , data= NULL , max.dist= NULL , nbins = NULL , B = 100 , threshold.factor = 3 ) </span></span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a><span class="co">#&gt;                   Estimate  Std. Error</span></span>
+<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a><span class="co">#&gt; nugget effect  74966.36163 146942.2954</span></span>
+<span id="cb13-26"><a href="#cb13-26" tabindex="-1"></a><span class="co">#&gt; partial sill  159845.81359 292815.7179</span></span>
+<span id="cb13-27"><a href="#cb13-27" tabindex="-1"></a><span class="co">#&gt; shape             64.32218    170.6928</span></span></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-dyck_sv_ses" class="csl-entry">
 Dyck, Julia, and Odile Sauzet. 2023. <span>“Parameter Uncertainty
