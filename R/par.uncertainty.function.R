@@ -24,7 +24,7 @@
 #' @param B The number of bootstrap repetitions to generate a set of re-estimates
 #'          of each parameter.
 #' @param threshold.factor The threshold factor specifies the filter within the filtered
-#'                         bootstrap method (see details). If not specified, a default value of 1.2 is used.
+#'                         bootstrap method (see details). If not specified, a default value of 3 is used.
 #' @param fit.method The fit method used in the semivariogram estimation with the gstat package.
 #' @param mc.cores The number of cores used for bootstrapping, utilizing the parallel R-package. More than one core is not supported on windows systems.
 #'
@@ -95,14 +95,14 @@
 #' print(mods$infotable)
 #'
 #' # Estimate the parameter standard errors:
-#' \donttest{
+#' \dontrun{
 #' se.mod1 = par.uncertainty(vario.mod.output = mods, mod.nr = 1, B = 1000)
 #' se.mod2 = par.uncertainty(vario.mod.output = mods, mod.nr = 2, B = 1000)
 #' }
 #'
 #' ## Example 2
 #' # Type in the specifications of the estimated exponential semi-variogram manually:
-#' \donttest{
+#' \dontrun{
 #' se.mod1.man = par.uncertainty(par.est = c(1021.812, 225440.3, 0),
 #'               data = birth, max.dist = 1000, nbins = 13, B = 1000)
 #'
@@ -228,11 +228,13 @@ par.uncertainty = function(vario.mod.output, mod.nr,
 
   # no fit.method 8 anymore
   v = gstat::vgm(psill = ini.partial.sill, model = "Exp", range = ini.shape, nugget = 0)
-  sv.mod = gstat::fit.variogram(emp.sv, model = v,  # fitting the model with starting model
+  sv.mod = tryCatch(gstat::fit.variogram(emp.sv, model = v,  # fitting the model with starting model
                                 fit.sills = TRUE,
                                 fit.ranges = TRUE,
                                 fit.method = fit.method,
-                                debug.level = 1, warn.if.neg = FALSE, fit.kappa = FALSE)
+                                debug.level = 1, warn.if.neg = FALSE, fit.kappa = FALSE),
+                    error = function(e) {stop("Error in gstat::fit.variogram(). Try a different model (other max.dist and/or nbins).")})
+
   mod.pars = c(sv.mod$psill[1], sv.mod$psill[2], sv.mod$range[2])
 
   # (3)

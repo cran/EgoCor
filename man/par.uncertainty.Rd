@@ -46,7 +46,7 @@ It is automatically extracted from the vario.mod.output, if provided.}
 of each parameter.}
 
 \item{threshold.factor}{The threshold factor specifies the filter within the filtered
-bootstrap method (see details). If not specified, a default value of 1.2 is used.}
+bootstrap method (see details). If not specified, a default value of 3 is used.}
 
 \item{fit.method}{The fit method used in the semivariogram estimation with the gstat package.}
 
@@ -122,14 +122,14 @@ mods = vario.mod(data = birth, max.dist = c(1000,600), nbins = 13,
 print(mods$infotable)
 
 # Estimate the parameter standard errors:
-\donttest{
+\dontrun{
 se.mod1 = par.uncertainty(vario.mod.output = mods, mod.nr = 1, B = 1000)
 se.mod2 = par.uncertainty(vario.mod.output = mods, mod.nr = 2, B = 1000)
 }
 
 ## Example 2
 # Type in the specifications of the estimated exponential semi-variogram manually:
-\donttest{
+\dontrun{
 se.mod1.man = par.uncertainty(par.est = c(1021.812, 225440.3, 0),
               data = birth, max.dist = 1000, nbins = 13, B = 1000)
 
